@@ -31,7 +31,7 @@ router.post('/register', function (req, res, next) {
         image_url: req.body.image_url == undefined ? "" : req.body.image_url
     }
     console.log(usedt);
-    UserD.find({username: usedt.username}, {_id: 1, username: 1}, function (err, userdeatils) {
+    UserD.find({username: usedt.username}, {_id: 1, username: 1, name: 1}, function (err, userdeatils) {
         if (err) {
             message.server_status.message = message_failed_insert;
             message.server_status.status = false;
@@ -111,6 +111,24 @@ router.post('/login', function (req, res, next) {
             message.server_status.message = message_login_success;
             message.server_status.status = true;
             message.userDetails = userdetails;
+            res.send(message)
+        }
+    });
+});
+
+
+/**
+ * Get status of a user
+ */
+router.get('/getstatus', function (req, res, next) {
+
+    UserD.findOne({_id: req.param("id")}, {status: 1, username: 1}, function (err, details) {
+        if (err) {
+            res.send(message_error);
+        } else {
+            message.server_status.message = message_success_list;
+            message.server_status.status = true;
+            message.userDetails = details;
             res.send(message)
         }
     });

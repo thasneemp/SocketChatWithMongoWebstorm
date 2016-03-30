@@ -8,6 +8,8 @@ var app = require('../app');
 var debug = require('debug')('socket_test:server');
 var http = require('http');
 var io = require('socket.io')(http);
+var UserD = require('../models/user_data');
+
 
 /**
  * Get port from environment and store in Express.
@@ -32,12 +34,34 @@ server.on('listening', onListening);
 
 io.listen(server).on('connection', function (socket) {
 
-    socket.on('message', function (msg, val) {
-        console.log(msg, val);
-        io.emit('message', msg, val);
+    socket.on('message', function (msg) {
+
+        UserD.update({_id: msg.my_id}, {"$push": {"chat": msg}}, function (err, details) {
+            if (err) {
+
+            } else {
+                console.log("message :" + msg.to_id);
+            }
+        });
+        io.in(msg.to_id).emit('message', msg);
+
+    });
+    socket.on('join', function (data) {
+        console.log("Joining :" + data);
+        socket.join(data); // We are using room of socket io
+    });
+    socket.on('status', function (data) {
+
+        UserD.update({_id: data.my_id}, {$set: {'status': data.status}}, function (err, details) {
+            if (err) {
+            } else {
+                console.log("status :" + data.status_type);
+                io.in(data.to_id).emit('statuscallback', data);
+            }
+        });
     });
 
-});
+})
 
 
 /**

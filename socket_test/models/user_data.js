@@ -6,6 +6,7 @@ var mongos = require("mongoose");
 var UserDetail = new mongos.Schema({
     name: String,
     username: String,
+    status: Boolean,
     password: String,
     image_url: String,
     chat: []
